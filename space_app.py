@@ -39,6 +39,8 @@ def get_space_data():
     active_response = session.get(active_url, timeout=60)
 
     #Debug
+    st.write(f"Login status: {response.status_code}")
+    st.code(response.text[:200])
     st.write(f"Active response status: {active_response.status_code}")
     st.code(active_response.text[:300]) 
 
