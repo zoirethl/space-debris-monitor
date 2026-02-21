@@ -7,7 +7,7 @@ st.set_page_config(page_title="Space Safety Engineer", layout="wide")
 st.title("🛰️ Space Debris Monitoring System")
 
 @st.cache_data(ttl=3600)
-def get_space_data(group):
+def get_space_data():
     import time
     
     credentials = {
