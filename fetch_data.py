@@ -46,7 +46,7 @@ def fetch_from_spacetrack():
         timeout=60
     )
 
-        time.sleep(3)  # respetar rate limit
+    time.sleep(3)  # respetar rate limit
 
     print("Downloading debris...")
     debris_r = session.get(
