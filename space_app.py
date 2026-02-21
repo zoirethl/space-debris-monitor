@@ -1,26 +1,19 @@
 import streamlit as st
 import pandas as pd
-from skyfield.api import load
+import requests
 
 st.set_page_config(page_title="Space Safety Engineer", layout="wide")
 
 st.title("🛰️ Space Debris Monitoring System")
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def get_space_data(group):
     url = f'https://celestrak.org/NORAD/elements/gp.php?GROUP={group}&FORMAT=tle'
-    satellites = load.tle_file(url)
-
-    data = []
-    for s in satellites:
-        data.append({
-            "name": s.name,
-            "catalog_number": s.model.satnum,
-            "epoch": s.model.epochdays,
-            "type": group
-        })
-    
-    return pd.DataFrame(data)
+    responses = requests.get(url)
+    from io import StringIO
+    df = pd.read_csv(StringIO(response.text))
+    df['type'] = group
+    return df 
 
 # --- (ETL: Extract) ---
 with st.spinner('Extracting and transforming orbital data...'):
@@ -37,10 +30,8 @@ col1.metric("Objects in Orbit", total_objects)
 col2.metric("Active Satellites", len(active_sats))
 col3.metric("Debris", len(debris_sats), delta=f"{pct_debris:.1f}% of total", delta_color="inverse")
 
-# --- Visualization ---
-st.subheader("Simulation of Risk by Density")
-
-# This Searching feature is to check if an specific satellite has debris near it
+# --- Search Bar ---
+st.subheader("Satellite Search")
 search = st.text_input("Input a Satellite name to evaluate it surroundings (ej: STARLINK, ISS, NOAA):")
 
 if search:
