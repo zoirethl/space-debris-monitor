@@ -53,3 +53,56 @@ if search:
 
 if st.checkbox("Check debris inventory (Top 100)"):
     st.table(debris_sats[['OBJECT_NAME', 'NORAD_CAT_ID']].head(100))
+
+
+# ---- Orbital altitude distribution charts (LEO / MEO / GEO breakdown) ----
+
+import plotly.express as px
+
+st.subheader("Orbital Altitude Distribution (LEO / MEO / GEO)")
+
+st.caption("""
+**LEO** — Below 2,000 km. Highest debris density and collision risk.  
+**MEO** — 2,000 to 35,786 km. GPS and navigation satellites.  
+**GEO** — ~35,786 km. Weather and TV satellites, fixed over one point on Earth.
+""")
+
+def classify_orbit(mean_motion):
+    if mean_motion >= 11.25:
+        return 'LEO'
+    elif mean_motion >= 2.0:
+        return 'MEO'
+    else:
+        return 'GEO'
+
+all_objects = pd.concat([active_sats, debris_sats])
+all_objects['orbit_type'] = all_objects['MEAN_MOTION'].apply(classify_orbit)
+
+orbit_counts = all_objects.groupby(['orbit_type','type']).size().reset_index(name='count')
+
+col_pie, col_bar = st.columns(2)
+
+with col_pie:
+    fig_pie = px.pie(
+        orbit_counts.groupby('orbit_type')['count'].sum().reset_index(),
+        values='count',
+        names='orbit_type',
+        title='All Objects by Orbit Type',
+        color='orbit_type',
+        color_discrete_map={'LEO': '#EF553B', 'MEO': '#636EFA', 'GEO': '#00CC96'},
+        hole=0.4
+    )
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+with col_bar:
+    fig_bar = px.bar(
+        orbit_counts,
+        x='orbit_type',
+        y='count',
+        color='type',
+        title='Active Satellites vs Debris by Orbit',
+        color_discrete_map={'active': '#00CC96', 'debris': '#EF553B'},
+        labels={'orbit_type': 'Orbit Type', 'count': 'Objects', 'type': 'Category'},
+        barmode='group'
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
