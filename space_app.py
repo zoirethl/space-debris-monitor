@@ -13,6 +13,8 @@ def get_space_data():
     try:
         active_df = pd.read_csv('data/active_satellites.csv')
         debris_df = pd.read_csv('data/debris.csv')
+        active_df['type'] = 'active' 
+        debris_df['type'] = 'debris'
         return active_df, debris_df
     except FileNotFoundError:
         st.error("Data files not found. Run fetch_data.py first.")
@@ -88,7 +90,7 @@ with col_pie:
         names='orbit_type',
         title='All Objects by Orbit Type',
         color='orbit_type',
-        color_discrete_map={'LEO': '#EF553B', 'MEO': '#636EFA', 'GEO': '#00CC96'},
+        color_discrete_map={'LEO': "#EF3BD1", 'MEO': '#636EFA', 'GEO': '#00CC96'},
         hole=0.4
     )
     st.plotly_chart(fig_pie, use_container_width=True)
