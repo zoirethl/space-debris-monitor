@@ -14,8 +14,8 @@ if not SPACETRACK_USER or not SPACETRACK_PASS:
         import tomllib
         with open('.streamlit/secrets.toml', 'rb') as f:
             secrets = tomllib.load(f)
-        SPACE_TRACK_USER = secrets['SPACE_TRACK_USER']
-        SPACE_TRACK_PASS = secrets['SPACE_TRACK_PASS']
+        SPACETRACK_USER = secrets['SPACETRACK_USER']
+        SPACETRACK_PASS = secrets['SPACETRACK_PASS']
     except Exception as e:
         print(f"Error leyendo credenciales: {e}")
         exit(1)
@@ -26,13 +26,13 @@ def fetch_from_spacetrack():
     print("Logging in to Space-Track...")
     login = session.post(
         'https://www.space-track.org/ajaxauth/login',
-        data={'identity': SPACE_TRACK_USER, 'password': SPACE_TRACK_PASS},
+        data={'identity': SPACETRACK_USER, 'password': SPACETRACK_PASS},
         timeout=30
     )
 
     print(f"Login status: {login.status_code}")
     print(f"Login response: '{login.text}'")
-    print(f"User being sent: '{SPACE_TRACK_USER}'")
+    print(f"User being sent: '{SPACETRACK_USER}'")
 
     if login.status_code != 200:
         print(f"Login failed: {login.status_code}")
