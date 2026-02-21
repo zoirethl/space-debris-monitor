@@ -8,42 +8,59 @@ st.title("🛰️ Space Debris Monitoring System")
 
 @st.cache_data(ttl=3600)
 def get_space_data(group):
-    url = f'https://celestrak.org/NORAD/elements/gp.php?GROUP={group}&FORMAT=tle'
-    for intento in range(3):  # intenta hasta 3 veces
-        try:
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-            from io import StringIO
-            df = pd.read_csv(StringIO(response.text))
-            df['type'] = group
-            return df
-        except Exception as e:
-            if intento == 2: 
-                st.error(f"No se pudo conectar a Celestrak después de 3 intentos: {e}")
-                return pd.DataFrame()  
-            import time
-            time.sleep(5)  
-
-    responses = requests.get(url)
+    import time
+    
+    credentials = {
+        'identity': st.secrets["SPACETRACK_USER"],
+        'password': st.secrets["SPACETRACK_PASS"]
+    }
+    
+    session = requests.Session()
+    
+    # Login
+    login_url = 'https://www.space-track.org/ajaxauth/login'
+    response = session.post(login_url, data=credentials, timeout=30)
+    
+    if response.status_code != 200:
+        st.error("Login a Space-Track falló. Verifica tus credenciales.")
+        return pd.DataFrame(), pd.DataFrame()
+    
+    # Query — todos los objetos en órbita con datos básicos
+    base_url = 'https://www.space-track.org/basicspacedata/query/class/gp'
+    
+    # Satélites activos (OBJECT_TYPE = PAYLOAD, DECAYED = 0)
+    active_url = f'{base_url}/OBJECT_TYPE/PAYLOAD/DECAYED/0/orderby/NORAD_CAT_ID/format/csv'
+    # Debris (OBJECT_TYPE = DEBRIS, DECAYED = 0)
+    debris_url = f'{base_url}/OBJECT_TYPE/DEBRIS/DECAYED/0/orderby/NORAD_CAT_ID/format/csv'
+    
     from io import StringIO
-    df = pd.read_csv(StringIO(response.text))
-    df['type'] = group
-    return df 
+    
+    active_response = session.get(active_url, timeout=60)
+    time.sleep(2)  # Space-Track pide respetar rate limits
+    debris_response = session.get(debris_url, timeout=60)
+    
+    active_df = pd.read_csv(StringIO(active_response.text))
+    active_df['type'] = 'active'
+    
+    debris_df = pd.read_csv(StringIO(debris_response.text))
+    debris_df['type'] = 'debris'
+    
+    session.get('https://www.space-track.org/ajaxauth/logout')  # buena práctica
+    
+    return active_df, debris_df
 
 # --- (ETL: Extract) ---
-with st.spinner('Extracting and transforming orbital data...'):
-    active_sats = get_space_data('active')
-    debris_sats = get_space_data('debris')
+with st.spinner('Connecting to Space-Track.org...'):
+    active_sats, debris_sats = get_space_data()
+
+if active_sats.empty or debris_sats.empty:
+    st.warning("⚠️ Could not load data from Space-Track. Please refresh in a few minutes.")
+    st.stop()
 
 # --- (ETL: Transform) ---
 total_objects = len(active_sats) + len(debris_sats)
 pct_debris = (len(debris_sats) / total_objects) * 100
 
-
-if active_sats.empty or debris_sats.empty:
-    st.warning("⚠️ Could not load data from Celestrak. Please refresh in a few minutes.")
-    st.stop()
-    
 # Main KPIs
 col1, col2, col3 = st.columns(3)
 col1.metric("Objects in Orbit", total_objects)
