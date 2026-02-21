@@ -14,8 +14,8 @@ if not SPACETRACK_USER or not SPACETRACK_PASS:
         import tomllib
         with open('.streamlit/secrets.toml', 'rb') as f:
             secrets = tomllib.load(f)
-        SPACETRACK_USER = secrets['SPACETRACK_USER']
-        SPACETRACK_PASS = secrets['SPACETRACK_PASS']
+        SPACE_TRACK_USER = secrets['SPACE_TRACK_USER']
+        SPACE_TRACK_PASS = secrets['SPACE_TRACK_PASS']
     except Exception as e:
         print(f"Error leyendo credenciales: {e}")
         exit(1)
@@ -26,13 +26,13 @@ def fetch_from_spacetrack():
     print("Logging in to Space-Track...")
     login = session.post(
         'https://www.space-track.org/ajaxauth/login',
-        data={'identity': SPACETRACK_USER, 'password': SPACETRACK_PASS},
+        data={'identity': SPACE_TRACK_USER, 'password': SPACE_TRACK_PASS},
         timeout=30
     )
 
     print(f"Login status: {login.status_code}")
     print(f"Login response: '{login.text}'")
-    print(f"User being sent: '{SPACETRACK_USER}'")
+    print(f"User being sent: '{SPACE_TRACK_USER}'")
 
     if login.status_code != 200:
         print(f"Login failed: {login.status_code}")
@@ -46,10 +46,7 @@ def fetch_from_spacetrack():
         timeout=60
     )
 
-    print(f"Active status: {active_r.status_code}")
-    print(f"Active response preview: {active_r.text[:500]}")
-
-    time.sleep(3)  # respetar rate limit
+        time.sleep(3)  # respetar rate limit
 
     print("Downloading debris...")
     debris_r = session.get(
