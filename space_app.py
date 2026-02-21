@@ -7,71 +7,26 @@ st.set_page_config(page_title="Space Safety Engineer", layout="wide")
 st.title("🛰️ Space Debris Monitoring System")
 
 @st.cache_data(ttl=3600)
+
 def get_space_data():
-    import time
-    from io import StringIO
-
-    credentials = {
-        'identity': st.secrets["SPACETRACK_USER"],
-        'password': st.secrets["SPACETRACK_PASS"]
-    }
-    
-    session = requests.Session()
-    
-    # Login
-    login_url = 'https://www.space-track.org/ajaxauth/login'
-    response = session.post(login_url, data=credentials, timeout=30)
-    
-    if response.status_code != 200:
-        st.error(f"Login failed. Status: {response.status_code}")
-        st.code(response.text[:500])
-        return pd.DataFrame(), pd.DataFrame()
-    
-       
-    # Query — todos los objetos en órbita con datos básicos
-    base_url = 'https://www.space-track.org/basicspacedata/query/class/gp'
-    
-    # Satélites activos (OBJECT_TYPE = PAYLOAD, DECAYED = 0)
-    active_url = 'https://www.space-track.org/basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/DECAYED/0/format/csv/emptyresult/show'
-    # Debris (OBJECT_TYPE = DEBRIS, DECAYED = 0)
-    debris_url = 'https://www.space-track.org/basicspacedata/query/class/gp/OBJECT_TYPE/DEBRIS/DECAYED/0/format/csv/emptyresult/show'
-    
-    active_response = session.get(active_url, timeout=60)
-
-    #Debug
-    st.write(f"Login status: {response.status_code}")
-    st.code(response.text[:200])
-    st.write(f"Active response status: {active_response.status_code}")
-    st.code(active_response.text[:300]) 
-
-    time.sleep(2)  # Space-Track pide respetar rate limits
-    debris_response = session.get(debris_url, timeout=60)
-    
     try:
-        active_df = pd.read_csv(StringIO(active_response.text))
-        active_df['type'] = 'active'
-    except Exception as e:
-        st.error(f"Error parseando active: {e}")
+        active_df = pd.read_csv('data/active_satellites.csv')
+        debris_df = pd.read_csv('data/debris.csv')
+        return active_df, debris_df
+    except FileNotFoundError:
+        st.error("Data files not found. Run fetch_data.py first.")
         return pd.DataFrame(), pd.DataFrame()
 
-    try:
-        debris_df = pd.read_csv(StringIO(debris_response.text))
-        debris_df['type'] = 'debris'
-    except Exception as e:
-        st.error(f"Error parseando debris: {e}")
-        return pd.DataFrame(), pd.DataFrame()
-    
-    session.get('https://www.space-track.org/ajaxauth/logout')  # buena práctica
-    
-    return active_df, debris_df
+# Mostrar fecha de última actualización
+try:
+    with open('data/last_updated.txt') as f:
+        last_updated = f.read()
+    st.caption(f"📅 Data last updated: {last_updated}")
+except:
+    pass
 
-# --- (ETL: Extract) ---
-with st.spinner('Connecting to Space-Track.org...'):
+with st.spinner('Loading orbital data...'):
     active_sats, debris_sats = get_space_data()
-
-if active_sats.empty or debris_sats.empty:
-    st.warning("⚠️ Could not load data from Space-Track. Please refresh in a few minutes.")
-    st.stop()
 
 # --- (ETL: Transform) ---
 total_objects = len(active_sats) + len(debris_sats)
