@@ -23,8 +23,8 @@ jobs:
 
       - name: Run fetch script
         env:
-          SPACETRACK_USER: ${{ secrets.SPACETRACK_USER }}
-          SPACETRACK_PASS: ${{ secrets.SPACETRACK_PASS }}
+          SPACE_TRACK_USER: ${{ secrets.SPACE_TRACK_USER }}
+          SPACE_TRACK_PASS: ${{ secrets.SPACE_TRACK_PASS }}
         run: python fetch_data.py
 
       - name: Commit and push new data

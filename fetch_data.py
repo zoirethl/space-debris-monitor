@@ -5,8 +5,8 @@ from datetime import datetime
 from io import StringIO
 import time
 
-SPACETRACK_USER = os.getenv('SPACETRACK_USER')
-SPACETRACK_PASS = os.getenv('SPACETRACK_PASS')
+SPACETRACK_USER = os.getenv('SPACE_TRACK_USER')
+SPACETRACK_PASS = os.getenv('SPACE_TRACK_PASS')
 
 if not SPACETRACK_USER or not SPACETRACK_PASS:
     # Si no hay variables de entorno, lee del secrets local
@@ -14,8 +14,8 @@ if not SPACETRACK_USER or not SPACETRACK_PASS:
         import tomllib
         with open('.streamlit/secrets.toml', 'rb') as f:
             secrets = tomllib.load(f)
-        SPACETRACK_USER = secrets['SPACETRACK_USER']
-        SPACETRACK_PASS = secrets['SPACETRACK_PASS']
+        SPACETRACK_USER = secrets['SPACE_TRACK_USER']
+        SPACETRACK_PASS = secrets['SPACE_TRACK_PASS']
     except Exception as e:
         print(f"Error leyendo credenciales: {e}")
         exit(1)
