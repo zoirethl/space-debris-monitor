@@ -5,6 +5,32 @@ import plotly.express as px
 
 st.set_page_config(page_title="Space Safety Engineer", layout="wide")
 
+# ── CSS para tarjetas y separadores de sección ──────────────────────────────
+st.markdown("""
+<style>
+    .card {
+        background-color: #1a1a2e;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 16px;
+        border: 1px solid #2e2e4e;
+    }
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #F37FDF;
+        margin-bottom: 8px;
+    }
+    div[data-testid="stMetric"] {
+        background-color: #1a1a2e;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #2e2e4e;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+
 st.title("🛰️ Space Debris Monitoring System")
 
 @st.cache_data(ttl=3600)
@@ -36,13 +62,17 @@ total_objects = len(active_sats) + len(debris_sats)
 pct_debris = (len(debris_sats) / total_objects) * 100
 
 # Main KPIs
+st.markdown('<div class="card"><div class="section-title">Overview</div></div>', unsafe_allow_html=True)
 col1, col2, col3 = st.columns(3)
 col1.metric("Objects in Orbit", total_objects)
 col2.metric("Active Satellites", len(active_sats))
 col3.metric("Debris", len(debris_sats), delta=f"{pct_debris:.1f}% of total", delta_color="inverse")
 
+st.divider()
+
 # --- Search Bar ---
-st.subheader("Satellite Search")
+st.markdown('<div class="card"><div class="section-title">🔍 Satellite Search</div></div>', unsafe_allow_html=True)
+
 search = st.text_input("Input a Satellite name to evaluate it surroundings (ej: STARLINK, ISS, NOAA):")
 
 if search:
@@ -57,10 +87,11 @@ if search:
 if st.checkbox("Check debris inventory (Top 100)"):
     st.table(debris_sats[['OBJECT_NAME', 'NORAD_CAT_ID']].head(100))
 
+st.divider()
+
 
 # ---- Orbital altitude distribution charts (LEO / MEO / GEO breakdown) ----
-
-st.subheader("Orbital Altitude Distribution (LEO / MEO / GEO)")
+st.markdown('<div class="card"><div class="section-title">Orbital Altitude Distribution</div></div>', unsafe_allow_html=True)
 
 st.caption("""
 **LEO** — Below 2,000 km. Highest debris density and collision risk.  
@@ -90,7 +121,7 @@ with col_pie:
         names='orbit_type',
         title='All Objects by Orbit Type',
         color='orbit_type',
-        color_discrete_map={'LEO': "#EF3BD1", 'MEO': '#636EFA', 'GEO': '#00CC96'},
+        color_discrete_map={'LEO': "#F37FDF", 'MEO': "#878FF8", 'GEO': "#74E7C9"},
         hole=0.4
     )
     st.plotly_chart(fig_pie, use_container_width=True)
@@ -102,8 +133,9 @@ with col_bar:
         y='count',
         color='type',
         title='Active Satellites vs Debris by Orbit',
-        color_discrete_map={'active': '#00CC96', 'debris': '#EF553B'},
+        color_discrete_map={'active': '#878FF8', 'debris': '#F37FDF'},
         labels={'orbit_type': 'Orbit Type', 'count': 'Objects', 'type': 'Category'},
         barmode='group'
     )
+    fig_bar.update_layout(paper_bgcolor='rgba(0,0,0,0)', font_color='white')
     st.plotly_chart(fig_bar, use_container_width=True)
