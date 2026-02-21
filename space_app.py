@@ -9,6 +9,21 @@ st.title("🛰️ Space Debris Monitoring System")
 @st.cache_data(ttl=3600)
 def get_space_data(group):
     url = f'https://celestrak.org/NORAD/elements/gp.php?GROUP={group}&FORMAT=tle'
+    for intento in range(3):  # intenta hasta 3 veces
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            from io import StringIO
+            df = pd.read_csv(StringIO(response.text))
+            df['type'] = group
+            return df
+        except Exception as e:
+            if intento == 2: 
+                st.error(f"No se pudo conectar a Celestrak después de 3 intentos: {e}")
+                return pd.DataFrame()  
+            import time
+            time.sleep(5)  
+
     responses = requests.get(url)
     from io import StringIO
     df = pd.read_csv(StringIO(response.text))
@@ -24,6 +39,11 @@ with st.spinner('Extracting and transforming orbital data...'):
 total_objects = len(active_sats) + len(debris_sats)
 pct_debris = (len(debris_sats) / total_objects) * 100
 
+
+if active_sats.empty or debris_sats.empty:
+    st.warning("⚠️ Could not load data from Celestrak. Please refresh in a few minutes.")
+    st.stop()
+    
 # Main KPIs
 col1, col2, col3 = st.columns(3)
 col1.metric("Objects in Orbit", total_objects)
