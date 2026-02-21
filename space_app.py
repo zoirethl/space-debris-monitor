@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import plotly.express as px
 
 st.set_page_config(page_title="Space Safety Engineer", layout="wide")
 
@@ -56,8 +57,6 @@ if st.checkbox("Check debris inventory (Top 100)"):
 
 
 # ---- Orbital altitude distribution charts (LEO / MEO / GEO breakdown) ----
-
-import plotly.express as px
 
 st.subheader("Orbital Altitude Distribution (LEO / MEO / GEO)")
 
