@@ -32,9 +32,9 @@ def get_space_data():
     base_url = 'https://www.space-track.org/basicspacedata/query/class/gp'
     
     # Satélites activos (OBJECT_TYPE = PAYLOAD, DECAYED = 0)
-    active_url = f'{base_url}/OBJECT_TYPE/PAYLOAD/DECAYED/0/orderby/NORAD_CAT_ID/format/csv'
+    active_url = 'https://www.space-track.org/basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/DECAYED/0/format/csv/emptyresult/show'
     # Debris (OBJECT_TYPE = DEBRIS, DECAYED = 0)
-    debris_url = f'{base_url}/OBJECT_TYPE/DEBRIS/DECAYED/0/orderby/NORAD_CAT_ID/format/csv'
+    debris_url = 'https://www.space-track.org/basicspacedata/query/class/gp/OBJECT_TYPE/DEBRIS/DECAYED/0/format/csv/emptyresult/show'
     
     active_response = session.get(active_url, timeout=60)
 
