@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from io import StringIO
 import time
 
@@ -66,7 +66,6 @@ def fetch_from_spacetrack():
 
     # Guardar metadata — fecha de última actualización
     from datetime import datetime, timezone
-
     with open('data/last_updated.txt', 'w') as f:
         f.write(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))
 
