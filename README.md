@@ -1,7 +1,7 @@
 # 🛰️ Space Debris Monitoring System
 
 > A live data engineering project tracking orbital congestion, debris density, and space safety risks.
-
+[![Weekly Space Data Update](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml/badge.svg?branch=main)](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml)
 ---
 
 ## 📌 Overview
