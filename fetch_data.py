@@ -65,6 +65,8 @@ def fetch_from_spacetrack():
     debris_df.to_csv('data/debris.csv', index=False)
 
     # Guardar metadata — fecha de última actualización
+    from datetime import datetime, timezone
+
     with open('data/last_updated.txt', 'w') as f:
         f.write(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))
 
