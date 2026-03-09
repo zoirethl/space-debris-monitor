@@ -66,7 +66,7 @@ def fetch_from_spacetrack():
 
     # Guardar metadata — fecha de última actualización
     with open('data/last_updated.txt', 'w') as f:
-        f.write(datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M UTC'))
+        f.write(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))
 
     print(f"Done. Active: {len(active_df)} | Debris: {len(debris_df)}")
     print(f"Files saved to /data")
