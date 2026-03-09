@@ -121,3 +121,5 @@ MIT License — feel free to fork and build on this.
 ---
 
 *If you find this useful or want to collaborate, feel free to open an issue or reach out.*
+
+[![Weekly Space Data Update](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml/badge.svg?branch=main)](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml)
