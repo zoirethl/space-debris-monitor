@@ -1,6 +1,6 @@
-# 🛰️ Space Debris Monitoring System
+🛰️ Space Debris Monitoring System
 
-> A live data engineering project tracking orbital congestion, debris density, and space safety risks.
+> A live data engineering project tracking orbital congestion, debris density, and space safety risks — built as part of a career transition from Mechanical Maintenance Engineering into Data Engineering.
 > 
 [![Weekly Space Data Update](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml/badge.svg?branch=main)](https://github.com/zoirethl/space-debris-monitor/actions/workflows/update_data.yml)
 ---
@@ -19,10 +19,13 @@ This project started as a Tableau dashboard (exploratory data storytelling) and 
 
 ## 🚀 Live App Features
 
-- **Real-time data extraction** from [Celestrak](https://celestrak.org) via TLE files
-- **KPI dashboard** — total objects in orbit, active satellites vs. debris ratio
-- **Satellite search** — look up any object by name (e.g., STARLINK, ISS, NOAA) and inspect its catalog data
-- **Debris inventory** — filterable table of the top tracked debris objects
+- Real-time KPIs — total objects in orbit, active satellites vs. debris ratio
+- Orbital distribution — LEO / MEO / GEO breakdown with interactive charts
+- Top 10 countries — which nations have the most objects in orbit
+- Timeline — debris growth over time by launch year
+- Interactive filters — filter by country, object type, and orbit
+- Satellite search — look up any object by name (e.g., STARLINK, ISS, NOAA)
+- Debris inventory — sortable, searchable table of tracked objects
 
 ---
 
@@ -30,11 +33,34 @@ This project started as a Tableau dashboard (exploratory data storytelling) and 
 
 | Layer | Tool |
 |---|---|
-| Data Source | [Celestrak NORAD](https://celestrak.org) (live TLE feed) |
-| Orbital Calculations | `skyfield` |
-| Data Processing | `pandas` |
+|  Data Source | [Space-Track.org](https://www.space-track.org) (official US Space Surveillance Network) |
+| Data Pipeline | Python + `requests` + `pandas` |
+| Automation | GitHub Actions (weekly cron job) |
 | App Framework | `streamlit` |
-| Language | Python 3.x |
+| Visualization | `plotly` |
+| Language | Python 3.12 |
+
+---
+
+Data is fetched weekly via an automated GitHub Actions workflow:
+
+```
+fetch_data.py (local or GitHub Actions)
+    → authenticates with Space-Track.org API
+    → downloads active satellites + debris as CSV
+    → commits data/active_satellites.csv + data/debris.csv to repo
+    → Streamlit Cloud reads updated CSVs on next load
+```
+
+To run the pipeline manually:
+```bash
+python fetch_data.py
+```
+
+Requires credentials stored in `.streamlit/secrets.toml`:
+```toml
+SPACETRACK_USER = "your_email@example.com"
+SPACETRACK_PASS = "your_password"
 
 ---
 
@@ -43,8 +69,16 @@ This project started as a Tableau dashboard (exploratory data storytelling) and 
 ```
 space-debris-monitor/
 │
-├── app.py               # Main Streamlit application
-├── requirements.txt     # Python dependencies
+├── space_app.py              # Main Streamlit application
+├── fetch_data.py             # Data pipeline — fetches from Space-Track.org
+├── requirements.txt          # Python dependencies
+├── data/
+│   ├── active_satellites.csv # Latest active payload data
+│   ├── debris.csv            # Latest debris data
+│   └── last_updated.txt      # Timestamp of last pipeline run
+├── .github/
+│   └── workflows/
+│       └── update_data.yml   # GitHub Actions weekly automation
 └── README.md
 ```
 
@@ -54,7 +88,7 @@ space-debris-monitor/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/space-debris-monitor.git
+git clone https://github.com/zoirethl/space-debris-monitor.git
 cd space-debris-monitor
 ```
 
@@ -63,13 +97,18 @@ cd space-debris-monitor
 pip install -r requirements.txt
 ```
 
-### 3. Run the app
-```bash
-streamlit run app.py
+### 3. Add your Space-Track credentials
+Create `.streamlit/secrets.toml`:
+```toml
+SPACETRACK_USER = "your_email@example.com"
+SPACETRACK_PASS = "your_password"
 ```
 
-The app will open in your browser at `http://localhost:8501`
-
+### 4. Fetch data and run the app
+```bash
+python fetch_data.py
+streamlit run space_app.py
+```
 ---
 
 ## 📦 Requirements
@@ -77,7 +116,8 @@ The app will open in your browser at `http://localhost:8501`
 ```
 streamlit
 pandas
-skyfield
+requests
+plotly
 ```
 
 ---
@@ -86,11 +126,15 @@ skyfield
 
 This project is actively evolving. Planned additions:
 
-- [ ] Orbital altitude distribution charts (LEO / MEO / GEO breakdown)
-- [ ] Time-series visualization of debris growth over the last 20 years
-- [ ] Country-level responsibility breakdown (mirroring the Tableau version)
-- [ ] Collision probability estimates using proximity calculations with `skyfield`
-- [ ] Automated daily data pipeline with local storage
+- [x] Space-Track.org API integration with authentication
+- [x] Automated weekly data pipeline via GitHub Actions
+- [x] LEO / MEO / GEO orbital distribution charts
+- [x] Top 10 countries by objects in orbit
+- [x] Debris growth timeline by launch year
+- [x] Interactive filters by country and object type
+- [ ] Collision probability estimates using proximity calculations
+- [ ] Historical trend comparison year-over-year
+- [ ] Email/Slack alert when debris count crosses threshold
 
 ---
 
@@ -111,7 +155,7 @@ The original version of this analysis was built in Tableau Public and focused on
 
 This project reflects both worlds: the systems thinking and operational mindset from years managing industrial assets, applied to a data problem that has real-world safety consequences.
 
-**Current skills in practice:** Python · pandas · Streamlit · Tableau · SQL · Data Pipeline design (learning)
+**Current skills in practice:** Python · pandas · Streamlit · Plotly · GitHub Actions · REST APIs · Tableau
 
 ---
 
