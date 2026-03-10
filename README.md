@@ -61,6 +61,7 @@ Requires credentials stored in `.streamlit/secrets.toml`:
 ```toml
 SPACETRACK_USER = "your_email@example.com"
 SPACETRACK_PASS = "your_password"
+```
 
 ---
 
