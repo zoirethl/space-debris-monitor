@@ -1,0 +1,12 @@
+name: Wake Streamlit App
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  wake-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app
+        run: curl -L https://space-debris-monitor.streamlit.app
